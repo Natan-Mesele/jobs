@@ -25,6 +25,14 @@ public class JobServiceImpl implements JobService{
         createJobs.setCompanyName(job.getCompanyName());
         createJobs.setJobType(job.getJobType());
 
+        createJobs.setAboutJob(job.getAboutJob());
+        createJobs.setKeyDutiesAndResponsibilities(job.getKeyDutiesAndResponsibilities());
+        createJobs.setEducationalRequirements(job.getEducationalRequirements());
+        createJobs.setWorkExperience(job.getWorkExperience());
+        createJobs.setRequiredSkills(job.getRequiredSkills());
+        createJobs.setHowToApply(job.getHowToApply());
+        createJobs.setImageUrl(job.getImageUrl());
+
         return jobRepository.save(createJobs);
     }
 
@@ -37,6 +45,12 @@ public class JobServiceImpl implements JobService{
     @Override
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
+    }
+
+    @Override
+    public List<Job> getJobsForUser(String email) {
+        // Assuming your jobs have a userEmail field or a related User entity
+        return jobRepository.findJobsByUserEmail(email);  // Query jobs associated with the user's email
     }
 
     @Override

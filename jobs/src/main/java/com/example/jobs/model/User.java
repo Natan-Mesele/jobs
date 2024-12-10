@@ -1,13 +1,12 @@
 package com.example.jobs.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Data
@@ -26,4 +25,12 @@ public class User {
         private String password;
 
         private USER_ROLE role=USER_ROLE.ROLE_USER;
+
+        @Pattern(regexp = "^(\\+\\d{1,3}[- ]?)?\\d{10}$", message = "Invalid phone number")
+        private String phoneNumber;
+
+        @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+        @JsonManagedReference
+        private UserProfile profile;
+
 }

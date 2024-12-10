@@ -26,9 +26,10 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String jwt = request.getHeader(JwtConstant.JWT_HEADER);
 
-        if (jwt != null) {
-            jwt = jwt.substring(7);
+        if (jwt != null && !jwt.isEmpty()) {
+            // Process JWT if present
             try {
+                jwt = jwt.substring(7); // Remove "Bearer " prefix
                 SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRETE_KEY.getBytes());
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(key)

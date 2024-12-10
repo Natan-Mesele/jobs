@@ -7,6 +7,7 @@ import com.example.jobs.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,14 +22,31 @@ public class UserJobController {
     @Autowired
     private UserService userService;
 
-    // Endpoint to get all jobs
     @GetMapping
     public ResponseEntity<List<Job>> getAllJobs(
-            @RequestHeader("Authorization") String jwt
-    ) throws Exception {
-        User user = userService.findUserByJwtToken(jwt);
-        List<Job> jobs = jobService.getAllJobs();
-        return new ResponseEntity<>(jobs, HttpStatus.OK);
+            @RequestHeader(value = "Authorization", required = false) String jwt
+    ) {
+        try {
+            if (jwt != null && !jwt.isEmpty() && jwt.startsWith("Bearer ")) {
+                // Remove the "Bearer " prefix
+                jwt = jwt.substring(7);
+
+                // Extract user details from the JWT
+                User user = userService.findUserByJwtToken(jwt);
+                System.out.println("Authenticated user: " + user.getEmail());
+
+                // Optionally, you can personalize jobs based on the user
+                List<Job> personalizedJobs = jobService.getJobsForUser(user.getEmail());
+                return new ResponseEntity<>(personalizedJobs, HttpStatus.OK);
+            } else {
+                System.out.println("Unauthenticated request.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error while processing JWT: " + e.getMessage());
+        }
+
+        List<Job> publicJobs = jobService.getAllJobs();
+        return new ResponseEntity<>(publicJobs, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

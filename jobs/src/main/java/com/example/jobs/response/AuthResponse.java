@@ -11,4 +11,10 @@ public class AuthResponse {
     private String message;
 
     private USER_ROLE role;
+
+    private Long userId;
+
+    private String phoneNumber;  // Field to hold the user's phone number
+    private String fullName;
+
 }

@@ -22,9 +22,16 @@ public class UserCompanyController {
 
     @GetMapping
     public List<Company> getAllCompanies(
-            @RequestHeader("Authorization") String jwt
+            @RequestHeader(value = "Authorization", required = false) String jwt
     ) throws Exception {
-        User user = userService.findUserByJwtToken(jwt);
+        if (jwt != null && !jwt.isEmpty()) {
+            try {
+                User user = userService.findUserByJwtToken(jwt);
+                System.out.println("Authenticated user: " + user.getEmail());
+            } catch (Exception e) {
+                System.out.println("Invalid or expired JWT token");
+            }
+        }
         return companyService.getAllCompanies();
     }
 

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -56,6 +57,10 @@ public class AuthController {
         createdUser.setRole(user.getRole());
         createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        if (user.getPhoneNumber() != null) {
+            createdUser.setPhoneNumber(user.getPhoneNumber());
+        }
+
         User savedUser=userRepository.save(createdUser);
 
         Authentication authentication=new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -67,6 +72,9 @@ public class AuthController {
         authResponse.setJwt(jwt);
         authResponse.setMessage("Register success");
         authResponse.setRole(savedUser.getRole());
+        authResponse.setUserId(savedUser.getId());  // Set userId from saved user
+        authResponse.setPhoneNumber(savedUser.getPhoneNumber());  // Set phoneNumber from saved user
+        authResponse.setFullName(savedUser.getFullName());
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
@@ -83,10 +91,19 @@ public class AuthController {
 
         String jwt= jwtProvider.generateToken(authentication);
 
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findByEmail(username));
+        if (!optionalUser.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
+        User user = optionalUser.get();
+
         AuthResponse authResponse=new AuthResponse();
         authResponse.setJwt(jwt);
         authResponse.setMessage("login success");
         authResponse.setRole(USER_ROLE.valueOf(role));
+        authResponse.setUserId(user.getId());
+        authResponse.setPhoneNumber(user.getPhoneNumber());  // Assuming the User entity has a getPhoneNumber() method
+        authResponse.setFullName(user.getFullName());
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
